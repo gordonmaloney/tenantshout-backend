@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
+const User = require("../models/campaignSchema");
 
 //@desc register new user
 //@route POST /api/users
@@ -164,10 +164,8 @@ const getStats = async (req, res) => {
   });
 };
 
-
 const changePassword = asyncHandler(async (req, res) => {
-  
-console.log(req.body)
+  console.log(req.body);
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
@@ -188,9 +186,10 @@ console.log(req.body)
   const hashedPassword = await bcrypt.hash(password, salt);
 
   //create user
-  const user = await User.findOneAndUpdate({ email }, 
+  const user = await User.findOneAndUpdate(
+    { email },
     { name, email, password: hashedPassword }
-    )
+  );
 
   if (user) {
     res.status(201).json({
@@ -213,5 +212,5 @@ module.exports = {
   getMe,
   updateStreak,
   getStats,
-  changePassword
+  changePassword,
 };

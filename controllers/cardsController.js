@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
-const User = require("../models/userModel");
-const { db } = require("../models/userModel");
+const User = require("../models/campaignSchema");
+const { db } = require("../models/campaignSchema");
 
 //@desc get user cards
 //@route GET /api/cards
