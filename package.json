@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon erver.js"
+    "server": "nodemon server.js"
   },
   "author": "gordonmaloney",
   "license": "MIT",
