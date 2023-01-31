@@ -6,6 +6,7 @@ const connectDB = require("./config/db");
 const port = process.env.PORT || 8002;
 const cors = require("cors");
 const { MongoClient } = require('mongodb');
+var bodyParser = require('body-parser')
 
 connectDB();
 
@@ -15,9 +16,12 @@ const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 app.use(cors());
 
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
+app.use("/api/optin", require("./routes/optinRoutes"));
 
 app.get("/", (req, res) => {
   res.send("API running - nice one!");
