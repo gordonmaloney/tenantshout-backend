@@ -59,7 +59,7 @@ const CreateTrackerHit = async (req, res) => {
         //create new
 
         const trackerEntry = await Tracker.create({
-          source, hits, uniqueHits: [ipAddy]
+          source, hits
         });
     
         res.status(200).json("Successfully created " + trackerEntry);    
@@ -68,7 +68,7 @@ const CreateTrackerHit = async (req, res) => {
     if (ExistingEntry) {
 
        ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
-       !ExistingEntry.uniqueHits.includes(uniqueHits) && ExistingEntry.uniqueHits.push(uniqueHits)
+       !ExistingEntry.uniqueHits.includes(ipAddy) && ExistingEntry.uniqueHits.push(ipAddy)
         
         console.log(ExistingEntry)
         ExistingEntry.save()
