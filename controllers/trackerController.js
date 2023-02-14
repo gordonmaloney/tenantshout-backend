@@ -44,6 +44,56 @@ const CreateTrackerEntry = async (req, res) => {
 
 
 
+const CreateTrackerHit = async (req, res) => {
+
+    const { source, hits, uniqueHits } = req.body;
+    const ExistingEntry = await Tracker.findOne({source})
+    console.log(ExistingEntry)
+  try {
+
+    if (!ExistingEntry) {
+        //create new
+        console.log('source not found - creating:')
+
+        const trackerEntry = await Tracker.create({
+          source, hits, uniqueHits: [uniqueHits]
+        });
+    
+        res.status(200).json("Successfully created " + trackerEntry);    
+    }
+
+    if (ExistingEntry) {
+        console.log('source found - adding:')
+
+       ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
+       !ExistingEntry.uniqueHits.includes(uniqueHits) && ExistingEntry.uniqueHits.push(uniqueHits)
+        
+        console.log(ExistingEntry)
+        ExistingEntry.save()
+        res.status(200).json("Successfully added " + ExistingEntry);    
+    }
+  } catch {
+    res.status(500).json("uh oh!");
+  }
+};
+
+
+const deleteTracking = asyncHandler(async (req, res) => {
+    try {
+    const {password} = req.body
+
+    if (password == process.env.PASSWORD) {
+        const track = await Tracker.deleteMany({});
+
+        res.status(200).json(track)
+    }
+    else {
+        res.status(500).json('unauthorised')
+    } } catch {
+        res.status(500).json('unauthorised')
+    }
+})
+
 const getTracking = asyncHandler(async (req, res) => {
     try {
     const {password} = req.body
@@ -62,5 +112,7 @@ const getTracking = asyncHandler(async (req, res) => {
 
 module.exports = {
     CreateTrackerEntry,
-    getTracking
+    getTracking,
+    deleteTracking,
+    CreateTrackerHit
 };
