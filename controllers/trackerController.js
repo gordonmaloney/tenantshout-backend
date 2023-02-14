@@ -4,117 +4,111 @@ const asyncHandler = require("express-async-handler");
 const Tracker = require("../models/trackerSchema");
 const { db } = require("../models/optinSchema");
 const dotenv = require("dotenv").config();
-const RequestIp = require('@supercharge/request-ip')
-
+const RequestIp = require("@supercharge/request-ip");
 
 const CreateTrackerEntry = async (req, res) => {
-    const ipAddy = RequestIp.getClientIp(req)
+  const ipAddy = RequestIp.getClientIp(req);
 
-    console.log(ipAddy)
+  const { source, campaign, hits, details, optins } = req.body;
+  const ExistingEntry = await Tracker.findOne({ source });
 
-    const { source, campaign, hits, uniqueHits, details, optins } = req.body;
-    const ExistingEntry = await Tracker.findOne({source})
-    console.log(ExistingEntry)
   try {
-
     if (!ExistingEntry) {
-        //create new
+      //create new
 
-        const trackerEntry = await Tracker.create({
-          source, campaign: [campaign], hits, uniqueHits: [uniqueHits], details: [details], optins: [optins]
-        });
-    
-        res.status(200).json("Successfully created " + trackerEntry);    
+      const trackerEntry = await Tracker.create({
+        source,
+        campaign: [campaign],
+        hits,
+        uniqueHits: [ipAddy]
+      });
+
+      res.status(200).json("Successfully created " + trackerEntry);
     }
 
     if (ExistingEntry) {
+      ExistingEntry.campaign.push(campaign);
+      !ExistingEntry.uniqueHits.includes(ipAddy) && ExistingEntry.uniqueHits.push(ipAddy);
+      ExistingEntry.details.push(details);
+      ExistingEntry.optins.push(optins);
 
-        ExistingEntry.campaign.push(campaign)
-       ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
-       ExistingEntry.uniqueHits.push(uniqueHits)
-       ExistingEntry.details.push(details)
-       ExistingEntry.optins.push(optins)
-        
-        console.log(ExistingEntry)
-        ExistingEntry.save()
-        res.status(200).json("Successfully added " + ExistingEntry);    
+
+      ExistingEntry.save();
+      res.status(200).json("Successfully added " + ExistingEntry);
     }
   } catch {
     res.status(500).json("uh oh!");
   }
 };
-
-
 
 const CreateTrackerHit = async (req, res) => {
-    const ipAddy = RequestIp.getClientIp(req)
+  const ipAddy = RequestIp.getClientIp(req);
 
-    console.log(ipAddy)
+  console.log(ipAddy);
 
-    const { source, hits, uniqueHits } = req.body;
-    const ExistingEntry = await Tracker.findOne({source})
+  const { source, hits, uniqueHits } = req.body;
+  const ExistingEntry = await Tracker.findOne({ source });
   try {
-
     if (!ExistingEntry) {
-        //create new
+      //create new
 
-        const trackerEntry = await Tracker.create({
-          source, hits
-        });
-    
-        res.status(200).json("Successfully created " + trackerEntry);    
+      const trackerEntry = await Tracker.create({
+        source,
+        hits,
+      });
+
+      res.status(200).json("Successfully created " + trackerEntry);
     }
 
     if (ExistingEntry) {
+      ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
+      !ExistingEntry.uniqueHits.includes(ipAddy) &&
+        ExistingEntry.uniqueHits.push(ipAddy);
 
-       ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
-       !ExistingEntry.uniqueHits.includes(ipAddy) && ExistingEntry.uniqueHits.push(ipAddy)
-        
-        console.log(ExistingEntry)
-        ExistingEntry.save()
-        res.status(200).json("Successfully added " + ExistingEntry);    
+      console.log(ExistingEntry);
+      ExistingEntry.save();
+      res.status(200).json("Successfully added " + ExistingEntry);
     }
   } catch {
     res.status(500).json("uh oh!");
   }
 };
 
-
 const deleteTracking = asyncHandler(async (req, res) => {
-    try {
-    const {password} = req.body
+  try {
+    const { password } = req.body;
 
     if (password == process.env.PASSWORD) {
-        const track = await Tracker.deleteMany({});
+      const track = await Tracker.deleteMany({});
 
-        res.status(200).json(track)
+      res.status(200).json(track);
+    } else {
+      res.status(500).json("unauthorised");
     }
-    else {
-        res.status(500).json('unauthorised')
-    } } catch {
-        res.status(500).json('unauthorised')
-    }
-})
+  } catch {
+    res.status(500).json("unauthorised");
+  }
+});
 
 const getTracking = asyncHandler(async (req, res) => {
-    try {
-    const {password} = req.body
+  try {
+    const { password } = req.body;
 
     if (password == process.env.PASSWORD) {
-        const track = await Tracker.find();
+      const track = await Tracker.find();
 
-        res.status(200).json(track)
+      res.status(200).json(track);
+    } else {
+      res.status(500).json("unauthorised");
     }
-    else {
-        res.status(500).json('unauthorised')
-    } } catch {
-        res.status(500).json('unauthorised')
-    }
-})
+  } catch {
+    res.status(500).json("unauthorised");
+  }
+});
 
 module.exports = {
-    CreateTrackerEntry,
-    getTracking,
-    deleteTracking,
-    CreateTrackerHit
+  CreateTrackerEntry,
+  getTracking,
+  deleteTracking,
+  CreateTrackerHit,
 };
