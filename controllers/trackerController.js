@@ -4,9 +4,13 @@ const asyncHandler = require("express-async-handler");
 const Tracker = require("../models/trackerSchema");
 const { db } = require("../models/optinSchema");
 const dotenv = require("dotenv").config();
+const RequestIp = require('@supercharge/request-ip')
 
 
 const CreateTrackerEntry = async (req, res) => {
+    const ipAddy = RequestIp.getClientIp(req)
+
+    console.log(ipAddy)
 
     const { source, campaign, hits, uniqueHits, details, optins } = req.body;
     const ExistingEntry = await Tracker.findOne({source})
@@ -15,7 +19,6 @@ const CreateTrackerEntry = async (req, res) => {
 
     if (!ExistingEntry) {
         //create new
-        console.log('source not found - creating:')
 
         const trackerEntry = await Tracker.create({
           source, campaign: [campaign], hits, uniqueHits: [uniqueHits], details: [details], optins: [optins]
@@ -25,7 +28,6 @@ const CreateTrackerEntry = async (req, res) => {
     }
 
     if (ExistingEntry) {
-        console.log('source found - adding:')
 
         ExistingEntry.campaign.push(campaign)
        ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
@@ -45,25 +47,25 @@ const CreateTrackerEntry = async (req, res) => {
 
 
 const CreateTrackerHit = async (req, res) => {
+    const ipAddy = RequestIp.getClientIp(req)
+
+    console.log(ipAddy)
 
     const { source, hits, uniqueHits } = req.body;
     const ExistingEntry = await Tracker.findOne({source})
-    console.log(ExistingEntry)
   try {
 
     if (!ExistingEntry) {
         //create new
-        console.log('source not found - creating:')
 
         const trackerEntry = await Tracker.create({
-          source, hits, uniqueHits: [uniqueHits]
+          source, hits, uniqueHits: [ipAddy]
         });
     
         res.status(200).json("Successfully created " + trackerEntry);    
     }
 
     if (ExistingEntry) {
-        console.log('source found - adding:')
 
        ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
        !ExistingEntry.uniqueHits.includes(uniqueHits) && ExistingEntry.uniqueHits.push(uniqueHits)
