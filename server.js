@@ -22,6 +22,7 @@ app.use(cors());
 
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 app.use("/api/optin", require("./routes/optinRoutes"));
+app.use("/api/tracker", require("./routes/trackerRoutes"));
 
 app.get("/", (req, res) => {
   res.send("API running - nice one!");
