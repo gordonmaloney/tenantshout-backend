@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const trackerSchema = mongoose.Schema(
   {
     source: String,
-    campaign: String,
+    campaign: [],
     hits: Number,
     uniqueHits: [],
     optins: [],

@@ -18,7 +18,7 @@ const CreateTrackerEntry = async (req, res) => {
         console.log('source not found - creating:')
 
         const trackerEntry = await Tracker.create({
-          source, campaign, hits, uniqueHits, details, optins
+          source, campaign: [campaign], hits, uniqueHits: [uniqueHits], details: [details], optins: [optins]
         });
     
         res.status(200).json("Successfully created " + trackerEntry);    
@@ -27,6 +27,7 @@ const CreateTrackerEntry = async (req, res) => {
     if (ExistingEntry) {
         console.log('source found - adding:')
 
+        ExistingEntry.campaign.push(campaign)
        ExistingEntry.hits = parseInt(ExistingEntry.hits) + parseInt(hits);
        ExistingEntry.uniqueHits.push(uniqueHits)
        ExistingEntry.details.push(details)
