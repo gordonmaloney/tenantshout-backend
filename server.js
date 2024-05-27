@@ -33,6 +33,6 @@ client.connect(err => {
   if(err){ console.error(err); return false;}
   // connection to mongo is successful, listen for requests
   app.listen(port, () => {
-      console.log("listening for requests");
+      console.log("listening for requests. port: " + port);
   })
 });
